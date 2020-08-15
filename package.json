@@ -1,0 +1,14 @@
+{
+  "name": "nedb-man",
+  "version": "1.0.0",
+  "description": "An thin wrapper around nedb(-promises) that adds a store manager.",
+  "main": "index.js",
+  "repository": "https://github.com/mcasto/nedb-man",
+  "author": "CastoWare Development",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "nedb": "^1.8.0",
+    "nedb-promises": "^4.0.4"
+  }
+}

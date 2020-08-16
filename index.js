@@ -5,10 +5,13 @@ const kc = require('kebab-case');
 module.exports = {
   stores: {},
 
-  createStore({ name = 'default', location=null }) {
+  create({stores = ['default'], location = null}) {
+    stores.forEach(name => {
     const dbLoc = location ? kc(path.join(location, name)) : null;
-    this.stores[name] = Datastore.create(dbLoc);
-    return this.stores[name];
+      this.stores[name] = Datastore.create(dbLoc);
+    })
+
+    return this;
   },
 
   listStores() {

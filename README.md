@@ -2,12 +2,12 @@
 
 nedb-man is a (very) thin wrapper around nedb-promises, which, of course, is a thin wrapper around neDB.
 
-I wrote this for a specific use case where I wanted easy access to the list of my stores without having to manually build a separate array to track them.
+I wrote this for a specific use case where I wanted easy access to the list of my stores without having to manually build a separate array to track them. After using it for a while in that project, I realized how useful it was and decided to make a public repo for it.
 
 ## Dependencies
 Obviously, it requires [nedb](https://github.com/louischatriot/nedb) and [nedb-promises](https://github.com/bajankristof/nedb-promises).
 
-It also uses `path` to create an OS-compatible path to your persistent stores (if required).
+It also uses `path` and [kebab-case](https://www.npmjs.com/package/kebab-case) to create an OS-compatible path to your persistent stores (if required).
 
 ## Installation
 
@@ -27,31 +27,31 @@ yarn add mcasto/nedb-man
 const db = require('nedb-man');
 
 // For persistence, include a location
-const persistent_db = db.createStore({ 
-  name: 'pers', 
-  location: '/path/to/my/stores'
-});
+db.create({ stores: ['persistent', 'stuff'], location: '/path/to/data'});
 
-// For in-memory only, you can just designate the name
-const memory_db = db.createStore({ name: 'mem' })
+/* NOTE:
+
+If you're running in Node, this will create a physical folder structure on your drive. In browser, it just uses the location as the key to the store in IndexedDB, WebSQL, or localStorage, whichever is determined most suitable by neDB. 
+
+*/
+
+// For in-memory only, you can just designate the store list
+db.create({ stores: ['memory', 'only', 'stuff'] })
 
 // You can access these created objects as you would any neDB(-promises) store
-memory_db.insert({
+db.stores.memory.insert({
 'name': 'mike',
 'age': 49
 });
 
-memory_db.find({}).then( data => console.log(data) );
+db.stores.memory.find({}).then( data => console.log(data) );
 
 // Of course, you can also use with async/await
 const adb = async()=>{
-  const ret = await memory_db.find({});
+  const ret = await db.stores.memory.find({});
   return ret.map(item=>item.name);
 };
 adb().then(data=>console.log(data));
-
-// Access the stores directly through the database object
-db.stores.mem.find({}).then(data=>console.log(data));
 
 // Easily retrieve the list of stores
 const storeList = db.listStores();
@@ -59,11 +59,12 @@ console.log(storeList);
 ```
 
 ## Note about in-browser usage
-I have not tested this in a browser. It *should* work because neDB and nedb-promises work in browsers.
+As noted above, in a browser, the `location` parameter for the `create()` function can be an empty string since neDB will use `localStorage`, `IndexedDB`, or `WebSQL` (depending on the browser), and there is no physical location.
 
-In a browser, the `location` parameter for the `createStore()` function can be an empty string since neDB will use `localStorage`, `IndexedDB`, or `WebSQL` (depending on the browser), and there is no physical location.
+You must specify a truthy `location` parameter for persistence, though, otherwise it will create an in-memory-only store.
 
-You must specify a truthy `location` parameter for persistence, though.
+## Documentation
+Full documentation for neDB can be found at [nedb](https://github.com/louischatriot/nedb). This wrapper only manages the list of stores, like a clearing house. Consequently, all of neDB's functionality is available. Since I prefer working with Promises to Cursors, it returns promises as described at [nedb-promises](https://github.com/bajankristof/nedb-promises).
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
